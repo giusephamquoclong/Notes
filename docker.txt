@@ -1,0 +1,242 @@
+#install docker ubuntu 
+apt-get update && \
+apt-get install -y apt-transport-https ca-certificates curl software-properties-common && \
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+apt-get update && \
+apt-get install docker-ce -y 
+
+--------------------------------------------------------------------------
+
+#install docker debian
+sudo apt update 
+sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg2 -y 
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add - 
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+sudo apt update 
+sudo apt install docker-ce -y
+sudo systemctl status docker"
+
+-----------------------------------------------------------------------
+
+curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
+docker run -dit --network host --restart always --name sbc -h asterisk -v /etc/asterisk/:/etc/astersk/ longpham08081997/asterisk:ubuntu
+
+docker run  -dit --restart unless-stopped -v /usr/share/zoneinfo:/usr/share/zoneinfo -v /etc/localtime:/etc/localtime  --name homer5 -p 8080:80 -p 9060:9060/udp sipcapture/homer-docker
+-----------------------------------------------------------------------
+macvlan
+
+docker network create -d macvlan --subnet=10.33.0.0/16 --ip-range=10.33.1.0/24 --gateway=10.33.0.1 -o macvlan_mode=bridge -o parent=eth1 macvlan
+docker -d --privileged --network <macvlan> --name <ten container> <images>:<tag>
+
+------------------------------------------------------------------------
+
+docker run --name containernet -dit --privileged --pid='host' -v /var/run/docker.sock:/var/run/docker.sock containernet/containernet /bin/bash
+
+
+-----------------------------------------------------------------------
+
+docker pull longbao128/floodlight-qos:1
+docker run -it --name floodlight-qos --network=host -d longbao128/floodlight-qos:1
+docker run -d -p 6653:6653 -p 8080:8080 --name=floodlight glefevre/floodlight
+
+-----------------------------------------------------------------------
+
+thoát docker mà giữ lại container : ctrl+p+q
+
+-----------------------------------------------------------------------
+
+docker inspect <container id>
+xem file dạng json của docker container đó
+
+------------------------------------------------------------------------
+
+docker-compose down
+vô file có chứa docker-compose bằng sử dụng câu lệnh inspect để xem và sẽ tự xoá các container 
+
+------------------------------------------------------------------------
+
+docker system prune -a
+xoá các images không dùng hoặc đang bị treo
+
+------------------------------------------------------------------------
+ovs
+sh ovs-vsctl -- set Bridge s2 netflow=@nf -- --id=@nf create NetFlow targets=\"35.240.206.60:2055\"
+
+export COLLECTOR_IP=10.33.161.39
+export COLLECTOR_PORT=6343
+export AGENT_IP=ens160
+export HEADER_BYTES=128
+export SAMPLING_N=64
+export POLLING_SECS=2
+ovs-vsctl -- --id=@sflow create sflow agent=${AGENT_IP} \
+    target="\"${COLLECTOR_IP}:${COLLECTOR_PORT}\"" header=${HEADER_BYTES} \
+    sampling=${SAMPLING_N} polling=${POLLING_SECS} \
+      -- set bridge s4 sflow=@sflow
+
+------------------------------------------------------------------------
+queue
+ovs-vsctl -- set port s1-eth1 qos=@newqos -- --id=@newqos create qos type=linux-htb queues=0=@q0,1=@q1 -- --id=@q0 create queue other-config:min-rate=0 other-config:max-rate=7000000 -- --id=@q1 create queue other-config:min-rate=0 other-config:max-rate=5000000
+ovs-ofctl add-flow s1 in_port=1,actions=enqueue:1:1
+ovs-ofctl add-flow s1 in_port=1,dl_type=0x0800,nw_proto=6,tp_dst=443,actions=enqueue:2:1
+ovs-vsctl clear port 05a85349-7872-43de-b093-b6f46dba2414 qos
+ovs-vsctl -- --all destroy Queue
+https://docs.pica8.com/pages/viewpage.action?pageId=3084121
+http://www.netcontractor.pl/blog/?tag=dscp
+./qospath2.py -a -S 192.168.1.10 -D 192.168.3.40 -N TEST01 -J '{"service":"Express fowarding","sw":"00:00:00:00:00:00:00:01","eth-type":"0x0800","protocol":"6","dst-port":"443","tos":"40"}'
+./qosmanager2.py -A -t service -O '{"name":"Express fowarding", "tos":"101000"}'
+./qospath2.py -a -S 192.168.1.10 -D 192.168.3.40 -N TEST01 -J '{"eth-type":"0x0800","protocol":"17","eth-src":"42:78:c5:f6:46:5c","eth-dst":"8e:9c:5d:9b:c8:e9","queue":"2","dst-port":"443","tos":"40"}'
+---------------------------------------------------------------------------
+tcprewrite --dstipmap=0.0.0.0/0:192.168.254.20 --srcipmap=0.0.0.0/0:192.168.255.10 --infile=out.pcap --outfile=out1.pcap
+
+tcprewrite --enet-dmac=16:3d:d9:f6:d3:88 --enet-smac=ce:d8:5b:7e:05:38 --infile=out2.pcap --outfile=out.pcap
+
+-----------------------------------------------------------------------------
+elasticsearch 
+docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+
+------------------------------------------------------------------------------
+#qos floodlight
+- List server
+./qosmanager2.py --list -t services
+- List policies
+./qosmanager2.py --list -t policies
+- Add QoS to the open switch
+./mininet-add-queues
+- Enabes QoS Manager on cotroller 
+./qosmanager2.py -e
+
+- Push QoS
+./qospath2.py -a -S 192.168.255.10 -D 192.168.255.20 -N 2MBIT -J '{"eth-type":"0x0800","queue":"2","protocol":"6"`}'
+
+ovs-vsctl list qos
+ovs-vsctl list queue
+
+ovs-vsctl clear Port $IF_NAME qos
+ovs-vsctl --all destroy qos && ovs-vsctl --all destroy queue  
+
+ovs-vsctl -- set port s1-eth1 qos=@newqos -- --id=@newqos create qos type=linux-htb queues=0=@q0,1=@q1 -- --id=@q0 create queue other-config:min-rate=0 other-config:max-rate=7000000 -- --id=@q1 create queue other-config:min-rate=0 other-config:max-rate=3000000
+sudo ovs-vsctl -- set port s1-eth1 qos=@defaultqos -- set port s2-eth1 qos=@defaultqos -- --id=@defaultqos create qos type=linux-htb other-config:max-rate=100000000 queues=0=@q0,1=@q1,2=@q2 -- --id=@q0 create queue other-config:min-rate=50000000 other-config:max-rate=50000000 -- --id=@q1 create queue other-config:max-rate=30000000 -- --id=@q2 create queue other-config:max-rate=10000000 other-config:min-rate=10000000
+https://docs.pica8.com/display/picos292cg/NetFlow+Commands
+--------------------------------------------------------------------------------------------------------------------------------------------
+#!/bin/bash
+docker=['6516873c020f','51f9e6878725','62546c715240','5682af841469']
+a=1
+for i in 73d38ad5bd5b c7d1f6c45190 16a8e87e22fd 360437a093fb;
+do
+        docker exec -it $i apt update
+        docker exec -it $i apt install tmux traceroute telnet tcpdump iperf iperf3 -y
+        docker exec -it $i ip route del default
+        docker exec -it $i ip route add default dev d$a-eth0 
+        let "a++"       
+done
+-----------------------------
+sudo iptables -A INPUT -p tcp --dport 5432 --jump ACCEPT
+iptables-save
+service netfilter-persistent save
+
+-------------------------------
+sudo tcpdump -ttttnnr tcp_dump.pcap
+
+--------------------------------
+docker network create --driver bridge --subnet 10.100.1.0/24 net1
+docker network create --driver bridge --subnet 10.100.2.0/24 net2
+docker network create --driver bridge --subnet 10.100.3.0/24 net3
+docker network create --driver bridge --subnet 10.100.4.0/24 net4
+docker create -it --net=net1 --ip=10.100.1.3 --name=test centos:7
+docker network connect --ip 10.100.2.3 net2 test
+docker network connect --ip 10.100.3.3 net3 test
+docker network connect --ip 10.100.4.3 net4 test
+docker start test
+docker exec -it test yum install -y net-tools
+docker exec -it test ifconfig
+
+----------------------------------------
+commit images
+
+docker commit <id container> <tên images>:<tag>
+
+-----------------------------------------
+save docker images to file
+
+docker save --output <tên file muốn lưu>.tar <id images>
+
+-----------------------------------------
+load lại file images tạo ra images docker 
+
+docker load -i <tên file> 
+
+-----------------------------------------
+rename images docker 
+
+docker tag <id images> <new name>:<new tag>
+
+------------------------------------------
+share volume with 2 container
+
+docker run -dit --volumes-from <id container ban đầu> 
+
+------------------------------------------
+volume docker 
+
+liệt kê volume: 			docker volume ls
+create volume:  			docker volume create <tên volume>
+kiểm tra thông tin volume:		docker volume inspect <tên volume> 
+xoá volume:				docker volume rm <tên volume>
+gán volume vào container: 		docker run -dit --name <tên container> --mount=<tên volume>,target=<thư mục ánh xạ ổ đĩa vào trong container VD: /home/disk2> <images ID>
+
+Create volume vào một thư mục chỉ định trên máy host:
+docker volume create --opt device=<thư mục chỉ định> --opt type=none --opt o=bind <tên volume>
+Khi dùng cách này khi tạo container sẽ không gán bằng option --mount mà sẽ gán bằng -v
+docker run -it -v <tên volume>:<tên thư mục docker > <images id>
+
+-----------------------------------------
+mysql 8.0
+- port: 3304
+- file config: /etc/mysql/my.cnf
+	[mysqld]
+	default-authentication-plugin=mysql_native_password
+	(đây là kiểu xác thực cho hệ thống cũ)
+- root: MYSQL_ROOT_PASSWORD
+- database: /var/lib/mysql
+
+------------------------------------------
+giám sát container
+
+docker stats <ID container> ...
+
+------------------------------------------
+docker swarm
+
+docker swarm init --advertise-addr <ip-addr>					Initialize the swarm
+token=$(ssh -o StrictHostKeyChecking=no 172.17.0.29 "docker swarm join-token -q worker") && echo $token
+docker swarm join 172.17.0.29:2377 --token $token
+docker swarm join 103.146.21.30:2377 --token SWMTKN-1-2zi05bqtv6ju8mmtyn65lg67u3o3jo6ppshfre7uf7v6ghsgl5-5uvcy6x7m43ndaotuxxzo038o
+docker service ls								List services
+docker service ps <name service>						List task of services
+docker service create --name <name>  <image-name>				Create new services
++ --mode global: create all node include manager and worker
++ --replicas <number of node>:
+
+docker service rm <name>							Remove service
+docker service scale <name>=<number of node>					Scale services
+docker service update --image <imagename>:<version> <name of node or Service>	Update service of
+docker swarm leave --force 							Leave the swarm of node
+docker node ls									List nodes
+docker node ps									List services in nodes
+docker node rm <id>								Remove node
+docker node update --availability drain <name of node>				Shutdown node
+
+
+------------------------------------------------
+xem ip network bridge trong container
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <tên-container>
+------------------------------------------------
+xem option restart trong container
+docker inspect --format '{{.HostConfig.RestartPolicy.Name}}' <tên-container>
+ docker inspect --format "{{.HostConfig.RestartPolicy.Name}}, {{.Name}}, {{.Id}}" $(docker ps -qf status=running) | sort -t, -k1 |column -s, -t
+--------------------------------------------------
+persistent volume docker swarm
+https://thenewstack.io/tutorial-create-a-docker-swarm-with-persistent-storage-using-glusterfs/
+https://blog.ruanbekker.com/blog/2019/03/05/container-persistent-storage-for-docker-swarm-using-a-glusterfs-volume-plugin/
+

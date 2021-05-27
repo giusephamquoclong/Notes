@@ -1,0 +1,452 @@
+/chinh ngày tháng năm giờ
+timedatectl status
+timedatectl set-ntp 0 // disable
+timedatectl set-ntp 1 // enable
+date
+date +%Y%m%d -s "20181001"
+date -s "2 OCT 2018 10:11:00"
+sudo date MMddhhmmyyyy.ss
+Trong đó: 
+- MM là tháng. 
+- dd là ngày. 
+- hh là giờ.
+- mm là phút.
+- yyyy là năm.
+- ss là giây.
+
+#set timezone
+timedatectl set-timezone Asia/Ho_Chi_Minh
+apt-get install --reinstall tzdata
+
+
+ln  -sf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
+
+/xem loi he thong
+journactl -rx 
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#openssl
+https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs
+
+openssl genrsa -out /tmp/name.key 2048
+openssl req -new -sha256 -key /tmp/name.key -out /tmp/name.csr
+openssl req -newkey rsa:2048 -nodes -keyout domain.key -x509 -days 365 -out domain.crt
+
+openssl rsa -noout -modulus -in domain.key | openssl md5 :check
+openssl req -noout -modulus -in domain.csr | openssl md5 :check
+
+ps -aux | grep someuser
+sudo pkill -u phonesystem
+deluser phonesystem
+
+wget -qO- ipconfig.io / ip public
+
+https://cheapsslsecurity.com/p/convert-a-certificate-to-pem-crt-to-pem-cer-to-pem-der-to-pem/
+
+https://www.namecheap.com/support/knowledgebase/article.aspx/9419/33/installing-an-ssl-certificate-on-nginx
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#remove giao diện
+sudo apt-get autoremove gdm3
+
+ sudo apt-get autoremove --purge gnome*
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#monitor
+sudo sngrep port 5060 -H udp:10.200.100.115:9060 --no-interface -q
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#jumpcloud
+curl --tlsv1.2 --silent --show-error --header 'x-connect-key: 7f5050de573ecae17ad143f3903908e743d04f46' https://kickstart.jumpcloud.com/Kickstart | sudo bash
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#openvpn add user
+./sacli --user eve AutoGenerateOnBeHalfOf
+./sacli -o ./eve/ --cn eve get5
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#homer
+docker run  -dit --restart unless-stopped -v /root/homermysql/:/var/lib/mysql -v /usr/share/zoneinfo:/usr/share/zoneinfo -v /etc/localtime:/etc/localtime  --name homer5 -p 8080:80 -p 9060:9060/udp dougbtv/homer5
+
+download heplify
+wget https://github.com/sipcapture/heplify/releases/download/1.47/heplify
+chmod +x heplify
+
+nohup /root/heplify -hs x.x.x.x:9060 &
+/root/heplify -m SIP -di "172.16.20.53" -hs 172.16.20.24:9060 -t af_packet
+sudo nohup /home/admin/heplify -hs 10.56.92.20:9060 -t af_packet &
+
+filter ip 
+https://github.com/sipcapture/homer/wiki/Examples%3A-sngrep
+https://biot.com/capstats/bpf.html
+VD:  sngrep --no-interface -q -H udp:10.200.100.115:9060 ip host 49.213.117.30 or host 113.164.237.195 
+
+------------------------------------------------------------------------------------------------------------------------------------------
+#rsync
+rsync -auv -e ssh --progress /var/opt/mssql/data/LePhuongNam.mdf /var/opt/mssql/data/LePhuongNam_log.ldf root@123.30.249.193:/home/lephuongnam/
+rsync -auv -e ssh --progress /tmp/backup_ch_lic_fqdn_prompts.zip root@'+ipmaybackup+':/tmp/'
+rsync -avzh --progress --bwlimit=600(kbs) root@10.11.12.13:/home/public_html root@10.11.12.14:/home/test/
+
+#rsync windows sang debian
+C:\cygwin\bin\rsync.exe -avzh --progress "cygdrive/<ổ đĩa>/.." root@10.11.12.14:/home/test/
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#3cx
+Login with root via SSH and try the following commands to stop all 3CX services and nginx:
+3CXStopServices
+service nginx stop
+
+After, try to start them again:
+3CXStartServices
+service nginx start
+
+systemctl list-unit-files
+systemctl list-unit-files | grep 3CX
+
+sudo systemctl stop 3CXPhoneSystemMC01.service
+sudo systemctl start 3CXPhoneSystemMC01.service
+
+fix lỗi cài lại 3cx có posgree
+apt-get remove --purge postgre*
+
+get password 3cx
+https://host4u.hosting/support/index.php?/Knowledgebase/Article/View/218/0/how-to-recover-3cx-admin-password-on-solusvm
+
+renew ssl 
+cd /var/lib/3cxpbx/Bin/nginx/conf/Instance1
+
+tool convert recordings when upgrade version
+add parameter:
+RECS_SYNC_REQUIRED=1
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#iptable
+iptables -A INPUT -s 10.32.36.0/255.255.255.0 -p tcp --destination-port 5001 -j DROP
+iptables -D INPUT -s 10.32.36.0/255.255.255.0 -p tcp --destination-port 5001 -j DROP
+
+
+iptables -A INPUT -s 10.33.0.0/255.255.0.0 -p tcp --destination-port 443 -j DROP
+iptables -D INPUT -s 10.32.36.0/255.255.255.0 -p tcp --destination-port 5001 -j DROP
+
+watch "tail /tmp/backup.log"
+
+iptables -L --line-number
+iptables -D INPUT (drop iptables)
+iptables -t nat -D POSTROUTING
+
+sudo iptables -A INPUT -p tcp --dport 5432 --jump ACCEPT
+iptables-save
+sudo apt-get install -y netfilter-persistent
+service netfilter-persistent save
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#nginx
+chkconfig nginx on (centos)
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#change banner 3cx
+/usr/share/3cxpbx/skel/Data/Http/wwwroot/img/logo.273f9fab.png
+/var/lib/3cxpbx/Data/Http/wwwroot/img/logo.273f9fab.png
+
+/var/lib/3cxpbx/Data/Http/provsubdir/logo/logo.png
+/var/lib/3cxpbx/Data/Http/wwwroot/webclient/assets/img/logo.png
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+#postgres
+sudo apt install postgresql postgresql-contrib
+
+su - postgres
+/usr/bin/pg_ctl reload
+
+su postgres psql
+
+sudo -u postgres psql -d database_single 
+select * from cl_calls order by id desc limit 5;
+https://www.gab.lc/articles/replication_postgresql/
+
+connect postgres cmd
+su postgres
+psql -h 103.146.21.6 --username admin -d database_single
+
+lỗi postgres
+DETAIL:  The database was initialized with LC_COLLATE "en_US.UTF-8",  which is not recognized by setlocale().
+---fix:
+locale -a
+locale-gen en_US.UTF-8
+sudo dpkg-reconfigure locales
+cd /usr/lib/locale
+localedef -f UTF-8 -i en_US ./en_US.utf8
+service postresql restart
+
+
+# check master
+sudo -u postgres psql -d database_single << EOF
+select * from pg_stat_replication;
+EOF
+
+# check slave
+sudo -u postgres psql -d database_single << EOF
+select * from pg_stat_wal_receiver;
+EOF
+------------------------------------------------------------------------------------------------------------------------------------------
+#monit
+https://www.howtoforge.com/tutorial/how-to-install-and-configure-monit-on-debian-9/
+
+------------------------------------------------------------------------------------------------------------------------------------------
+#vyos debian 8 jessie
+vi /etc/apt/sources.list
+deb http://ftp.us.debian.org/debian/ jessie main contrib non-free
+deb-src http://ftp.us.debian.org/debian/ jessie main contrib non-free
+deb http://security.debian.org/ jessie/updates main contrib non-free
+deb-src http://security.debian.org/ jessie/updates main contrib non-free
+
+docker for debian 8 jessie
+https://www.linuxbabe.com/linux-server/install-docker-on-debian-8-jessie-server
+
+
+debian 9 stretch
+deb http://deb.debian.org/debian stretch main contrib non-free
+deb http://security.debian.org/ stretch/updates main contrib non-free
+deb http://deb.debian.org/debian stretch-updates main contrib non-free
+deb [arch=amd64] https://download.docker.com/linux/debian stretch stable
+
+------------------------------------------------------------------------------------------------------------------------------------------
+#asterisk 13
+wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz
+tar -zxf asterisk-13-current.tar.gz
+cd asterisk-13.30.0/
+cd contrib/scripts/
+./install_prereq install
+cd ..
+cd ..
+./configure --with-pjproject-bundled
+make menuselect
+make
+make install
+make samples
+make config
+make install-logrotate
+/etc/init.d/asterisk start
+vi /etc/init.d/asterisk
+ulimit -n 999999
+/etc/init.d/asterisk restart
+systemctl daemon-reload
+/etc/init.d/asterisk restart (edited)
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+ftp server
+https://www.hostinger.vn/huong-dan/lam-nao-de-dung-ftp-server-tren-ubuntu-vps/
+allow_writeable_chroot=YES 
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+proxy 
+https://www.server-world.info/en/note?os=Debian_10&p=squid&f=2
+apt
+vi /etc/apt/apt.conf
+Acquire::http::proxy "http://103.150.241.10:3130/";
+Acquire::https::proxy "http://103.150.241.10:3130/";
+
+Acquire::http::proxy "http://10.200.100.141:3130/";
+Acquire::https::proxy "http://10.200.100.141:3130/";
+
+wget
+vi /etc/wgetrc
+http_proxy = 103.150.241.10:3130
+https_proxy = 103.150.241.10:3130
+
+docker add proxy
+vi /lib/systemd/system/docker.service
+[Service]
+Environment="HTTP_PROXY=http://103.150.241.10:3130/"
+Environment="HTTPS_PROXY=http://103.150.241.10:3130/"
+
+tắt proxy
+unset http_...
+------------------------------------------------------------------------------------------------------------------------------------------
+vim /etc/docker/daemon.json
+{
+  "bip": "10.200.100.1/24",
+  "live-restore": true
+}
+
+
+ systemctl daemon-reload && systemctl reload docker && systemctl restart docker 
+không được restart docker chỉ được reload rồi mới restart
+
+ systemctl reload docker
+systemctl restart docker 
+
+sed -i 's/\(Envir.*\)/#\1/g' /lib/systemd/system/docker.service
+ sed -i 's/Environment=\"HTTPS_PROXY=http:\/\/10.33.160.235:3128\/\"/#Environment=\"HTTPS_PROXY=http:\/\/10.33.160.235:3128\/\"/g'  /lib/systemd/system/docker.service
+-------------------------------------------------------------------------------------------------------------------------------------------
+dnsmasq
+
+https://computingforgeeks.com/install-and-configure-dnsmasq-on-ubuntu-18-04-lts/
+---------------------------------------------------------------------------------------------------------------------------------------
+dung lượng tổng của file tìm 
+cd vô thư mục record
+du -ac --bytes */*201908* | awk '{ print; total += $1 }; END { print "total lobsters: " total }'
+-----------------------------------------------------------------------------------------
+dung lượng Record theo tháng 
+find / -name "*202104*" -exec ls -l {} \; | awk '{ print; total += $5 }; END { print "total lobsters: " total/1024/1024/1024 }'
+---------------------------------------------------------------------------------------------------------------------------------------
+xoá file theo find
+find / -name "*201907*.wav" -exec rm -rf {} \;
+find /data/recording/Recordings -mtime +360 -exec ls -lh {} \;
+find /data/recording/Recordings -mtime +360 -exec rm -rf {} \;
+
+---------------------------------------------------------------------------------------------------------------------------------------
+rsync file theo find
+cd 
+rsync -avzh --progress --files-from=<(find -name '*201912*') ./ root@10.33.172.25:/root/
+
+---------------------------------------------------------------------------------------------------------------------------------------
+kill tiến trình theo tên
+ps -ef | grep dns01.py | awk '{print $2}' | xargs kill -9
+
+---------------------------------------------------------------------------------------------------------------------------------------
+phân vùng file record cho ổ cứng mới 
+
+partition folder Record
+mkfs.ext4 /dev/sdb1
+mount -t ext4 /dev/sdb1 Recordings/
+
+---------------------------------------------------------------------------------------------------------------------------------------
+extend volume with LVM
+https://www.tecmint.com/extend-and-reduce-lvms-in-linux/
+
+---------------------------------------------------------------------------------------------------------------------------------------
+extend volume without LVM
+https://devops.ionos.com/tutorials/increase-the-size-of-a-linux-root-partition-without-rebooting/
+
+-------------------------------------------------------------------------------------------------------------------------
+bắt file pcap cho asterisk
+tcpdump -i eth0 -s0 -w /tmp/pcap.pcap
+
+--------------------------------------------------------------------------------------------------------------------------
+Vim
+
+Mouse:
+nano /etc/vim/vimrc.local
+let g:skip_defaults_vim = 1
+
+replace all word
+:%s/foo/bar/g
+
+---------------------------------------------------------------------------------------------------------------------------
+tmux 
+
+https://tmuxcheatsheet.com/
+
+tmux attach
+tmux ls
+tmux kill-session -t <session>
+tmux a -t 0
+/usr/bin/tmux new-session -d -s <ten session>
+/usr/bin/tmux send-keys -t helloworld "source /home/USERNAME/.bashrc" C-m
+https://www.nburles.co.uk/linux/starting-a-process-in-a-tmux-session-using-cron
+
+----------------------------------------------------------------------------------------------------------------------------
+ssh idrac
+
+/admin1-> cd system1
+/admin1/system1-> racadm serveraction hardreset
+Server power operation successful
+
+/admin1/system1-> racadm serveraction powerdown
+Server power operation successful
+
+/admin1/system1-> racadm serveraction powerup
+Server power operation successful
+
+https://www.dell.com/community/PowerEdge-Hardware-General/How-to-initiate-a-machine-soft-reset-from-the-DRAC-cli/td-p/5127338
+----------------------------------------------------------------------------------------------------------------------------
+Đếm số lượng kết nối của mỗi IP đến server.
+netstat -ant | grep -v LISTEN | awk '{print 5}' | cut -d":" -f1 | sort | uniq -c | sort -rn | more (liệt kê ở tất cả trạng thái)
+netstat -ant | grep -v ESTABLISH | awk '{print 5}' | cut -d":" -f1 | sort | uniq -c | sort -rn | more (liệt kê các kết được thiết lập)
+
+-----------------------------------------------------------------------------------------------------------------------------
+extend ổ đĩa lộn lv /dev/3cx-v/swap_1
+B1: lvreduce -L -100G (số lượng GB extend lộn) /dev/3cx-vg/swap_1
+B2: xoá pv unknow ra khỏi vg : vgreduce --removemissing --verbose 3cx-ng (volume group)
+B3: extend lại từ đầu như link https://www.tecmint.com/extend-and-reduce-lvms-in-linux/
+
+------------------------------------------------------------------------------------------------------------------------------
+rancher 
+
+su -c "setenforce 0" chạy lệnh này trước khi cài rancher
+
+------------------------------------------------------------------------------------------------------------------------------
+#History
+~/.bash_history
+hiển thị thời gian history
+echo 'export HISTTIMEFORMAT="%c"' >> ~/.bashrc
+source ~/.bashrc
+
+xóa dòng
+history -d <số dòng>
+xóa toàn bộ
+history -c
+
+show history gần nhất
+history <số dòng>
+--------------------------------------------------------------------------------------------------------------------------------
+copy một phần trong text theo dòng
+cat -n <file> (xem số dòng)
+sed '11,31p'/etc/nginx/sites-enabled/3cxpbx > <file> (copy dòng thứ 11 đến 31 ra file)
+
+---------------------------------------------------------------------------------------------------------------------------------
+check ram process
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head
+ps aux  | awk '{print $6/1024  " MB\t\t" $2 "\t" $11}'  | sort -n
+
+-----------------------------------------------------------------------------------------------------------------------------------
+Lưu ý khi tạo host dùng lvm: mặc định sẽ dùng 5% tổng dung lượng để làm reverse block size. Khi tạo nhớ chừa thêm 5% ra
+
+If the filesystem is ext4, there are reserved blocks, mostly to help handling and help avoid fragmentation and available only to the root user. For this setting, it can be changed live using tune2fs (not all settings can be handled like this when the filesystem is mounted):
+
+-m reserved-blocks-percentage
+
+Set the percentage of the filesystem which may only be allocated by privileged processes. Reserving some number of filesystem blocks for use by privileged processes is done to avoid filesystem fragmentation, and to allow system daemons, such as syslogd(8), to continue to function correctly after non-privileged processes are prevented from writing to the filesystem. Normally, the default percentage of reserved blocks is 5%.
+
+So if you want to lower the reservation to 1% (~ 2GB) thus getting access to ~ 8GB of no more reserved space, you can do this:
+
+sudo tune2fs -m 1 /dev/nvme0n1p8
+Note: the -m option actually accepts a decimal number as parameter. You can use -m 0.1 to reserve only about ~200MB (and access most of those previously unavailable 10GB). You can also use the -r option instead to reserve directly by blocks. It's probably not advised to have 0 reserved blocks.
+
+Kiểm tra reverse block size: tune2fs -l /dev/partition  | grep 'Reserved'
+Chia cho Block size ra được phần trăm. Lấy phần trăm đó chia cho dung lượng sẽ ra được dung lượng dùng cho reverse.
+----------------------------------------------------------------------------------------------------------------------------------
+Lệnh ps show ra tiến trình cha và tiến trình con
+
+ps axjf
+
+----------------------------------------------------------------------------------------------------------------------------------
+Đém số lượng file trong thư mục
+
+find . -type f | cut -d/ -f2 | sort | uniq -c
+
+-----------------------------------------------------------------------------------------------------------------------------------
+change number of mount naf vspherse 
+
+https://kb.vmware.com/s/article/2239
+
+---------------------------------------------------------------------------------------------------------------------------------
+#LVM lỗi Device /dev/sdd excluded by a filter.
+wipefs -a /dev/sdd
+xong chạy lại pvcreate /dev/sdd
+
+----------------------------------------------------------------------------------------------------------------------------------
+#cloud-init proxmox
+cloud_init_modules: 
+  - resolv_conf
